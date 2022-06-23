@@ -28,6 +28,7 @@ jobs:
   deployment:
     
     runs-on: ubuntu-latest
+    needs: deployment
     environment:
       name: development
       url: http://20.51.185.108/contact.html
