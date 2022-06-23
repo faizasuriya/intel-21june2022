@@ -16,14 +16,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
     needs: build
-    steps: Build Step
-    run: echo "Build Step"
+    steps: 
+      -name: Build Step
+       run: echo "Build Step"
 
   test:
     runs-on: ubuntu-latest
     needs: test
-    steps: Test Step
-    run: echo "Test Step"  
+    steps: 
+      -name: Test Step
+       run: echo "Test Step"  
   
   deployment:
     
