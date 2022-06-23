@@ -30,7 +30,7 @@ jobs:
         env: 
           SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
           ARGS: "-rltgoDzv0"
-          SOURCE: "mysite.html"
+          SOURCE: "myapp"
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
           TARGET: ${{ secrets.REMOTE_TARGET }}
@@ -41,4 +41,4 @@ jobs:
           host: ${{ secrets.REMOTE_HOST }}
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          script: sudo mv mysite.html /var/www/html/
+          script: sudo mv myapp/* /var/www/html/
