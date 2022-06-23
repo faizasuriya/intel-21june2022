@@ -28,6 +28,15 @@ jobs:
       - name: Verify the Code is Cloned
         run: ls -la
 
+jobs:
+  deployment:
+    
+    runs-on: ubuntu-latest
+    environment:
+      name: development
+      url: http://20.51.185.108/test.html
+
+    steps:
       - name: Copy the Code to the Server
         uses: easingthemes/ssh-deploy@main
         env: 
@@ -37,6 +46,14 @@ jobs:
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
           TARGET: ${{ secrets.REMOTE_TARGET }}
+
+jobs:
+  deployment:
+    
+    runs-on: ubuntu-latest
+    environment:
+      name: development
+      url: http://20.51.185.108/mysite.html
 
       - name: Move the file from Home Directory to /var/www/html/
         uses: appleboy/ssh-action@master
