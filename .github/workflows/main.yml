@@ -40,7 +40,6 @@ jobs:
       - name: Verify the Code is Cloned
         run: ls -la
 
-    steps:
       - name: Copy the Code to the Server
         uses: easingthemes/ssh-deploy@main
         env: 
