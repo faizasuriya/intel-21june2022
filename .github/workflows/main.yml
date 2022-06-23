@@ -33,3 +33,13 @@ jobs:
           SOURCE: "mysite.html"
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
+          TARGET: ${{ secrets.REMOTE_TARGET }}
+
+      - name: Move the file from Home Directory to /var/www/html/
+        uses: appleboy/ssh-action@master
+        with:
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          REMOTE_USER: ${{ secrets.REMOTE_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
+          PORT: ${{ secrets.PORT }}
+          SCRIPT: whoami
