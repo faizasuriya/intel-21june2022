@@ -21,7 +21,7 @@ jobs:
 
       - name: Inject Version Details to the Application
         run: |
-          sed -i 's/REPLACEAPPLICATIONENVIRONMENT/'\$GITHUB_ENV\'/g' myapp/version.html
+          sed -i 's/REPLACEAPPLICATIONENVIRONMENT/$GITHUB_ENV/g' myapp/version.html
           
       - name: Upload the Artifact
         uses: actions/upload-artifact@v3
