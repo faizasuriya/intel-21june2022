@@ -1,62 +1,98 @@
 name: Deploy Static Application to Ubuntu Apache2 Server
-
 on:
-  
+
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-
-  
   workflow_dispatch:
-
 
 jobs:
 
   build:
     runs-on: ubuntu-latest
-    needs: build
-    steps: 
-      -name: Build Step
-       run: echo "Build Step"
-
-  test:
-    runs-on: ubuntu-latest
-    needs: test
-    steps: 
-      -name: Test Step
-       run: echo "Test Step"  
-  
-  deployment:
-    
-    runs-on: ubuntu-latest
-    needs: deployment
-    environment:
-      name: development
-      url: http://20.51.185.108/contact.html
-
     steps:
-      
+
       - name: Clone the Code
         uses: actions/checkout@v3
+        
+      - name: Build Step
+        run: echo "Build Step"
+
+      - name: Inject Version Details to the Application
+        run: |
+          sed -i 's/REPLACEAPPLICATIONENVIRONMENT/$GITHUB_ENV/g' myapp/version.html
+      - name: Upload the Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: myapp-package
+          path: myapp
+  
+  test:
+    runs-on: ubuntu-latest
+    needs: build  
+    steps:
+      - name: Test Step
+        run: echo "Test Step"
+
+      - name: Download the myapp-package
+        uses: actions/download-artifact@v3
+        with:
+          name: myapp-package
+          path: myapp
+
+      - name: Verify the downloaded Packages
+        run: |
+          ls -la
+          pwd
+      - name: Cat the file and test for replacement.
+        run: cat myapp/version.html
+  
+  
+  deployment:
+    runs-on: ubuntu-latest
+    needs: test
+    timeout-minutes: 10
+    environment:
+      name: development
+      url: http://20.106.201.135/contact.html
+
+    steps:
+      - name: Download the myapp-package
+        uses: actions/download-artifact@v3
+        with:
+          name: myapp-package
+          path: myapp
 
       - name: Verify the Code is Cloned
         run: ls -la
 
-      - name: Copy the Code to the Server
-        uses: easingthemes/ssh-deploy@main
-        env: 
-          SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
-          ARGS: "-rltgoDzv0"
-          SOURCE: "myapp"
-          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
-          REMOTE_USER: ${{ secrets.REMOTE_USER }}
-          TARGET: ${{ secrets.REMOTE_TARGET }}
+      # - name: Copy the Code to the Server
+      #   uses: easingthemes/ssh-deploy@main
+      #   env:
+      #     SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
+      #     ARGS: "-rltgoDzvO"
+      #     SOURCE: "myapp"
+      #     REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+      #     REMOTE_USER: ${{ secrets.REMOTE_USER }}
+      #     TARGET: ${{ secrets.REMOTE_TARGET }}
 
-      - name: Move the file from Home Directory to /var/www/html/
-        uses: appleboy/ssh-action@master
+      # - name: Move the file from Home Directory to Apache Dir on Remote Ubuntu Server
+      #   uses: appleboy/ssh-action@master
+      #   with:
+      #     host: ${{ secrets.HOST }}
+      #     username: ${{ secrets.USERNAME }}
+      #     key: ${{ secrets.KEY }}
+      #     script: sudo mv myapp/* /var/www/html/
+
+      - name: Copy the Index.html to Ubuntu Server
+        uses: marcodallasanta/ssh-scp-deploy@v1.2.0
         with:
-          host: ${{ secrets.REMOTE_HOST }}
-          username: ${{ secrets.REMOTE_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: sudo mv myapp/* /var/www/html/
+          local: 'myapp'
+          remote: '/home/azureuser/'
+          host: ${{secrets.REMOTE_HOST}}
+          user: ${{secrets.REMOTE_USER}}
+          key: ${{secrets.SERVER_SSH_KEY}}
+          ssh_options: -o StrictHostKeyChecking=no
+          pre_upload: echo "remove the files"
+          post_upload: sudo mv myapp/* /var/www/html/
